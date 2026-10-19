@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(**/.pbi/cache.abf)",
+      "Read(**/.pbi/localSettings.json)",
+      "Read(**/*.pbix)",
+      "Read(**/*.pbit)",
+      "Read(**/TMDLScripts/**)",
+      "Read(./dados/*.xlsx)",
+      "Read(./.vault_ifes_pbi_mcp_vendas/.obsidian/**)",
+      "Read(./.vault_ifes_pbi_mcp_vendas/.trash/**)",
+      "Read(**/~$*)",
+      "Edit(**/.pbi/cache.abf)",
+      "Edit(**/.pbi/localSettings.json)"
+    ]
+  }
+}

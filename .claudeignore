@@ -1,0 +1,35 @@
+# Arquivos que o agente não precisa ler: binários, caches e estado local.
+# Sintaxe igual à do .gitignore.
+
+# Power BI Desktop — cache de dados e estado local do editor
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+*.pbix
+*.pbit
+
+# Scratchpad do TMDL View (fonte de verdade é definition/)
+**/TMDLScripts/
+
+# Imagens e binários (contexto inútil, só peso)
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Planilha de dados — ler via script (openpyxl) ou DAX, nunca bruta
+dados/*.xlsx
+
+# Obsidian — estado local e lixeira
+.vault_ifes_pbi_mcp_vendas/.obsidian/
+.vault_ifes_pbi_mcp_vendas/.trash/
+
+# Git, editores, SO e temporários do Office
+.git/
+.vscode/
+.idea/
+.vs/
+~$*
+*.tmp
+Thumbs.db
+desktop.ini
+.DS_Store
