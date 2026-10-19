@@ -1,0 +1,24 @@
+relationship 6eaa31f7-946a-df1c-f52f-b541d25f0706
+	fromColumn: fato_vendas.ClienteID
+	toColumn: dim_clientes.ClienteID
+
+relationship d3a9f63b-5b1c-7f68-f171-5c23ace81e7c
+	fromColumn: fato_vendas.Data
+	toColumn: dim_calendario.Data
+
+relationship 28d7041c-d5be-1bd6-0270-8ce13107b743
+	fromColumn: fato_vendas.ProdutoID
+	toColumn: dim_produtos.ProdutoID
+
+relationship c1534ec5-7055-7896-71fa-586a00ad0525
+	fromColumn: fato_vendas.VendedorID
+	toColumn: dim_vendedores.VendedorID
+
+relationship 1d414f84-50a9-1ad7-9b0b-e1704095bd11
+	fromColumn: metas_mensais.DataMes
+	toColumn: dim_calendario.Data
+
+relationship 6ce0b27f-4a16-2c75-4d5c-8ff3154db51f
+	fromColumn: metas_mensais.VendedorID
+	toColumn: dim_vendedores.VendedorID
+

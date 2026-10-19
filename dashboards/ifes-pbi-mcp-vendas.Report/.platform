@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "ifes-pbi-mcp-vendas"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cd644b1a-c920-49fc-bb83-8c56495c9c9d"
+  }
+}

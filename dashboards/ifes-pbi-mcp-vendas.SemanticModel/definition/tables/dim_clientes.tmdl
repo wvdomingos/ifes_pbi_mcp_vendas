@@ -1,0 +1,65 @@
+/// Cadastro de clientes. Dimensão do star schema de vendas.
+table dim_clientes
+	lineageTag: 4594019e-5374-455c-9558-dc50b95440ba
+
+	/// Chave do cliente. Liga a fato_vendas[ClienteID].
+	column ClienteID
+		dataType: string
+		lineageTag: 96835205-974b-4307-aef1-775780deae0e
+		summarizeBy: none
+		sourceColumn: ClienteID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nome do cliente.
+	column Cliente
+		dataType: string
+		lineageTag: 98933bdb-bae4-45fe-a840-55bc18fd2dfa
+		summarizeBy: none
+		sourceColumn: Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Segmento comercial do cliente.
+	column Segmento
+		dataType: string
+		lineageTag: 148da971-0352-46f8-bc0e-4d92343b4279
+		summarizeBy: none
+		sourceColumn: Segmento
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Unidade federativa do cliente.
+	column UF
+		dataType: string
+		lineageTag: ff2c3b89-72a9-4c12-af2e-0f8198b87c2d
+		summarizeBy: none
+		sourceColumn: UF
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Região geográfica do cliente.
+	column Regiao
+		dataType: string
+		lineageTag: 61c092bc-1783-49cd-8f35-54f027a1ce34
+		summarizeBy: none
+		sourceColumn: Regiao
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_clientes = m
+		mode: import
+		queryGroup: Dimensão
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="dim_clientes",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido,{{"ClienteID", type text}, {"Cliente", type text}, {"Segmento", type text}, {"UF", type text}, {"Regiao", type text}})
+				in
+				    TipoAlterado
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

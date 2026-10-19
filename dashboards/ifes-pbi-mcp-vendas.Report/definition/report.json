@@ -1,0 +1,101 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "Fluent2-CY26SU10",
+      "reportVersionAtImport": {
+        "visual": "2.14.0",
+        "report": "3.4.0",
+        "page": "2.3.1"
+      },
+      "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "IFES_Com_rcio_Exterior047758442405019585.json",
+      "reportVersionAtImport": {
+        "visual": "2.14.0",
+        "report": "3.4.0",
+        "page": "2.3.1"
+      },
+      "type": "RegisteredResources"
+    }
+  },
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "publicCustomVisuals": [
+    "htmlContent443BE3AD55E043BF878BED274D3A6865"
+  ],
+  "resourcePackages": [
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "Fluent2-CY26SU10",
+          "path": "BaseThemes/Fluent2-CY26SU10.json",
+          "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "background_ifes_comercio_exter5498030790357636.png",
+          "path": "background_ifes_comercio_exter5498030790357636.png",
+          "type": "Image"
+        },
+        {
+          "name": "IFES_Com_rcio_Exterior047758442405019585.json",
+          "path": "IFES_Com_rcio_Exterior047758442405019585.json",
+          "type": "CustomTheme"
+        },
+        {
+          "name": "IFES_Comercio_Exterior_PBI_IA_5207414917534023.png",
+          "path": "IFES_Comercio_Exterior_PBI_IA_5207414917534023.png",
+          "type": "Image"
+        },
+        {
+          "name": "logo-ifes-removebg-preview3678244192213346.png",
+          "path": "logo-ifes-removebg-preview3678244192213346.png",
+          "type": "Image"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  }
+}

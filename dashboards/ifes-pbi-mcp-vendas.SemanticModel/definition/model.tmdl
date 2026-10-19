@@ -1,0 +1,42 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup Aux
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Fato
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup Dimensão
+
+	annotation PBI_QueryGroupOrder = 2
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["pCaminhoExcel","dim_calendario","Atualizacao","Medidas","dim_clientes","dim_produtos","dim_vendedores","metas_mensais","fato_vendas"]
+
+annotation PBI_ProTooling = ["TMDLView_Desktop","DevMode","MCP-PBIModeling"]
+
+ref table dim_calendario
+ref table Atualizacao
+ref table Medidas
+ref table documentacao
+ref table Meta_Columns
+ref table Meta_Measures
+ref table Meta_Relationships
+ref table Meta_Tables
+ref table dim_clientes
+ref table dim_produtos
+ref table dim_vendedores
+ref table metas_mensais
+ref table fato_vendas
+
+ref cultureInfo pt-BR
+

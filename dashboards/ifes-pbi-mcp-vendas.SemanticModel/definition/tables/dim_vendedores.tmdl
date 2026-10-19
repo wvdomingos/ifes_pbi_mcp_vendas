@@ -1,0 +1,56 @@
+/// Cadastro de vendedores. Dimensão do star schema de vendas.
+table dim_vendedores
+	lineageTag: c7e8db38-dcc8-4acd-88ce-71f3de116993
+
+	/// Chave do vendedor. Liga a fato_vendas[VendedorID] e metas_mensais[VendedorID].
+	column VendedorID
+		dataType: string
+		lineageTag: 2ff310d0-00b2-4a34-bd8e-fb6c9b4e6958
+		summarizeBy: none
+		sourceColumn: VendedorID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nome do vendedor.
+	column Vendedor
+		dataType: string
+		lineageTag: 7efd3c9d-7bd0-487f-8147-e076788a83a1
+		summarizeBy: none
+		sourceColumn: Vendedor
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Equipe comercial do vendedor.
+	column Equipe
+		dataType: string
+		lineageTag: 032d4632-72ea-42fc-b34f-ed7e160bcdf3
+		summarizeBy: none
+		sourceColumn: Equipe
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Região de atuação do vendedor.
+	column Regiao
+		dataType: string
+		lineageTag: 5b27f3f8-b453-4e31-94cd-0d58f96d36d9
+		summarizeBy: none
+		sourceColumn: Regiao
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_vendedores = m
+		mode: import
+		queryGroup: Dimensão
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="dim_vendedores",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido,{{"VendedorID", type text}, {"Vendedor", type text}, {"Equipe", type text}, {"Regiao", type text}})
+				in
+				    TipoAlterado
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

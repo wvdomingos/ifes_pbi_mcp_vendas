@@ -1,0 +1,87 @@
+table documentacao
+	isHidden
+	lineageTag: fc21a839-86b1-4797-b1fb-6eca6aa5d2bf
+
+	column Type
+		isHidden
+		lineageTag: 4f9ed9fb-1195-4e55-9092-4b4b53c62a25
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Type]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		isHidden
+		lineageTag: 64572b2a-df88-42f1-aaa0-0e412e55b1db
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Description
+		isHidden
+		lineageTag: fe5e8be7-fb76-4f31-8ede-fc3dfc95c3f6
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Description]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		isHidden
+		lineageTag: 4620b600-cb48-4e73-a311-e23afe29c717
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Location]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Expression
+		isHidden
+		lineageTag: fb733b45-cf33-4db8-9317-b48a87df6662
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Expression]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition documentacao = calculated
+		mode: import
+		source =
+				
+				VAR _measures_info =
+				    INFO.VIEW.MEASURES()
+				VAR _measures =
+				    SELECTCOLUMNS(
+				        _measures_info,
+				        "Type", "Measure",
+				        "Name", [Name],
+				        "Description", [Description],
+				        "Location",
+				            "Tabela: " & [Table] & UNICHAR(10) & "Pasta: " & [DisplayFolder],
+				        "Expression", [Expression]
+				    )
+				VAR _columns =
+				    SELECTCOLUMNS(
+				        FILTER(
+				            INFO.VIEW.COLUMNS(),
+				            [Table] <> "Data Dictionary" && NOT ([IsHidden])
+				        ),
+				        "Type", "Column",
+				        "Name", [Name],
+				        "Description", [Description],
+				        "Location", "Tabela: " & [Table],
+				        "Expression", ""
+				    )
+				VAR _combined =
+				    UNION(
+				        _columns,
+				        _measures
+				    )
+				RETURN
+				    _combined
+
+	annotation PBI_Id = 874cd7f4657b4e9caf0af5ca5227d3b6
+
