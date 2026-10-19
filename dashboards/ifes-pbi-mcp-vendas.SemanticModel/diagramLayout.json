@@ -10,8 +10,8 @@
       "nodes": [
         {
           "location": {
-            "x": 0,
-            "y": 2.81866629447779
+            "x": 83.15065568709484,
+            "y": 136.70531528217288
           },
           "nodeIndex": "dim_calendario",
           "nodeLineageTag": "f1185e95-6e87-48a2-bdc9-5451f866d9bd",
@@ -122,8 +122,8 @@
         },
         {
           "location": {
-            "x": 611.98614846086116,
-            "y": 658.87714739535863
+            "x": 427.36350617256596,
+            "y": 557.40516079415818
           },
           "nodeIndex": "fato_vendas",
           "nodeLineageTag": "7b4c82de-1e7d-45ba-b14d-488294548403",
@@ -135,8 +135,8 @@
         },
         {
           "location": {
-            "x": 1081.8692560583729,
-            "y": 0
+            "x": 901.47461321179435,
+            "y": 868.14921869915952
           },
           "nodeIndex": "dim_clientes",
           "nodeLineageTag": "4594019e-5374-455c-9558-dc50b95440ba",
@@ -149,21 +149,22 @@
         },
         {
           "location": {
-            "x": 766.90266848184228,
-            "y": 0
+            "x": 76.329426334783562,
+            "y": 858.2838866684873
           },
           "nodeIndex": "dim_produtos",
           "nodeLineageTag": "f6adc461-e9d9-437c-810c-3baba4a7ee35",
           "size": {
-            "height": 200,
+            "height": 104,
             "width": 234
           },
-          "zIndex": 0
+          "zIndex": 0,
+          "expandedHeight": 200
         },
         {
           "location": {
-            "x": 435.02408313844512,
-            "y": 0
+            "x": 819.77203233466366,
+            "y": 215.627971527551
           },
           "nodeIndex": "dim_vendedores",
           "nodeLineageTag": "c7e8db38-dcc8-4acd-88ce-71f3de116993",
@@ -176,8 +177,8 @@
         },
         {
           "location": {
-            "x": 221.52948216311472,
-            "y": 356.23657174368776
+            "x": 424.47345536551569,
+            "y": 378.78590209951005
           },
           "nodeIndex": "metas_mensais",
           "nodeLineageTag": "d7cde546-4bf7-4f52-bee0-79d0f44b7492",

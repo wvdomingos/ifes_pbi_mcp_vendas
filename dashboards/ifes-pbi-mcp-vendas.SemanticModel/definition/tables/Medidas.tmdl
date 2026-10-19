@@ -307,6 +307,117 @@ table Medidas
 		displayFolder: 2. Meta
 		lineageTag: 93d9a2c3-5a75-452d-94fe-b440dd8e78be
 
+	/// HTML com 4 cards KPI (Margem bruta %, Desconto %, Taxa de cancelamento %, Clientes ativos) em uma linha, para o visual HTML Content da página Desempenho Comercial. Tokens do DESING.md. Comparação vs. mesmo período do ano anterior recortado até a última data com venda; taxas comparadas em pontos percentuais. Piora em vermelho #A4262C com sinal (margem e clientes caindo; desconto e cancelamento subindo); melhora em negrito. Comparações somem sem base.
+	measure 'HTML KPIs Desempenho Comercial' =
+			VAR _ultima = CALCULATE(MAX(fato_vendas[Data]), REMOVEFILTERS())
+			VAR _margem = [Margem Bruta %]
+			VAR _margemAA = CALCULATE([Margem Bruta %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _desc = [Desconto %]
+			VAR _descAA = CALCULATE([Desconto %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _canc = [Taxa de Cancelamento %]
+			VAR _cancAA = CALCULATE([Taxa de Cancelamento %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _cli = [Clientes Ativos]
+			VAR _cliAA = CALCULATE([Clientes Ativos], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _ini = CALCULATE(MIN(fato_vendas[Data]), fato_vendas[Status] = "Faturado")
+			VAR _fim = CALCULATE(MAX(fato_vendas[Data]), fato_vendas[Status] = "Faturado")
+			VAR _dMargem = IF(ISBLANK(_margem) || ISBLANK(_margemAA), BLANK(), _margem - _margemAA)
+			VAR _dDesc = IF(ISBLANK(_desc) || ISBLANK(_descAA), BLANK(), _desc - _descAA)
+			VAR _dCanc = IF(ISBLANK(_canc) || ISBLANK(_cancAA), BLANK(), _canc - _cancAA)
+			VAR _varCli = IF(ISBLANK(_cliAA) || _cliAA = 0, BLANK(), DIVIDE(_cli - _cliAA, _cliAA))
+			
+			// tokens do DESING.md
+			VAR _cTit = "#0B4F35"
+			VAR _cSec = "#475D52"
+			VAR _neg = "<span style='color:#A4262C;font-weight:600;'>"
+			VAR _pos = "<span style='font-weight:700;'>"
+			VAR _fmtPP = "+0.0;-0.0;0.0"
+			VAR _fmtVar = "+0.0%;-0.0%;0.0%"
+			VAR _card = "flex:1;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:12px 16px;"
+			VAR _lbl = "font-size:12pt;color:" & _cSec & ";margin:0 0 4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+			VAR _val = "font-size:28pt;font-weight:600;color:" & _cTit & ";line-height:1.1;margin:0;white-space:nowrap;"
+			VAR _cmp = "font-size:10pt;color:" & _cSec & ";margin:4px 0 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+			VAR _semBase = "Sem base no ano anterior"
+			
+			// pioraSeSobe: TRUE para desconto e cancelamento
+			VAR _margemCmp =
+			    IF(NOT ISBLANK(_dMargem),
+			        IF(_dMargem < 0, _neg, _pos) & FORMAT(_dMargem * 100, _fmtPP) & " p.p.</span> vs. mesmo período (" & FORMAT(_margemAA, "0.0%") & ")",
+			        _semBase)
+			VAR _descCmp =
+			    IF(NOT ISBLANK(_dDesc),
+			        IF(_dDesc > 0, _neg, _pos) & FORMAT(_dDesc * 100, _fmtPP) & " p.p.</span> vs. mesmo período (" & FORMAT(_descAA, "0.0%") & ")",
+			        _semBase)
+			VAR _cancCmp =
+			    IF(NOT ISBLANK(_dCanc),
+			        IF(_dCanc > 0, _neg, _pos) & FORMAT(_dCanc * 100, _fmtPP) & " p.p.</span> vs. mesmo período (" & FORMAT(_cancAA, "0.0%") & ")",
+			        _semBase)
+			VAR _cliCmp =
+			    IF(NOT ISBLANK(_varCli),
+			        IF(_varCli < 0, _neg, _pos) & FORMAT(_varCli, _fmtVar) & "</span> vs. mesmo período (" & FORMAT(_cliAA, "#,##0") & ")",
+			        _semBase)
+			VAR _periodo = "Período com vendas: " & FORMAT(_ini, "dd/mm/yyyy") & " a " & FORMAT(_fim, "dd/mm/yyyy")
+			RETURN
+			IF(ISBLANK([Receita]),
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;font-size:12pt;color:" & _cSec & ";background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:16px;'>Sem dados para os filtros atuais</div>",
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;'>" &
+			    "<div style='display:flex;gap:12px;'>" &
+			        "<div style='" & _card & "'><p style='" & _lbl & "'>Margem bruta</p><p style='" & _val & "'>" & FORMAT(_margem, "0.0%") & "</p><p style='" & _cmp & "'>" & _margemCmp & "</p></div>" &
+			        "<div style='" & _card & "'><p style='" & _lbl & "'>Desconto médio</p><p style='" & _val & "'>" & FORMAT(_desc, "0.0%") & "</p><p style='" & _cmp & "'>" & _descCmp & "</p></div>" &
+			        "<div style='" & _card & "'><p style='" & _lbl & "'>Taxa de cancelamento</p><p style='" & _val & "'>" & IF(ISBLANK(_canc), "—", FORMAT(_canc, "0.0%")) & "</p><p style='" & _cmp & "'>" & _cancCmp & "</p></div>" &
+			        "<div style='" & _card & "'><p style='" & _lbl & "'>Clientes ativos</p><p style='" & _val & "'>" & FORMAT(_cli, "#,##0") & "</p><p style='" & _cmp & "'>" & _cliCmp & "</p></div>" &
+			    "</div>" &
+			    "<p style='font-size:8pt;color:" & _cSec & ";margin:6px 0 0 0;'>" & _periodo & "</p>" &
+			    "</div>"
+			)
+		displayFolder: 4. HTML
+		lineageTag: a5e635ba-82a2-43dc-98d2-1cd6a1bdfa47
+
+	/// HTML com a frase de insight comercial no contexto dos filtros: margem bruta, desconto médio e taxa de cancelamento com variação em p.p. contra o mesmo período do ano anterior (recortado até a última data com venda) e clientes ativos. Piora em vermelho #A4262C (margem caindo; desconto e cancelamento subindo), melhora em negrito. Trechos somem quando falta base. Para o visual HTML Content.
+	measure 'HTML Narrativa Desempenho Comercial' =
+			VAR _ultima = CALCULATE(MAX(fato_vendas[Data]), REMOVEFILTERS())
+			VAR _margem = [Margem Bruta %]
+			VAR _margemAA = CALCULATE([Margem Bruta %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _desc = [Desconto %]
+			VAR _descAA = CALCULATE([Desconto %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _canc = [Taxa de Cancelamento %]
+			VAR _cancAA = CALCULATE([Taxa de Cancelamento %], SAMEPERIODLASTYEAR(dim_calendario[Data]), KEEPFILTERS(dim_calendario[Data] <= EDATE(_ultima, -12)))
+			VAR _cli = [Clientes Ativos]
+			VAR _dMargem = IF(ISBLANK(_margem) || ISBLANK(_margemAA), BLANK(), _margem - _margemAA)
+			VAR _dDesc = IF(ISBLANK(_desc) || ISBLANK(_descAA), BLANK(), _desc - _descAA)
+			VAR _dCanc = IF(ISBLANK(_canc) || ISBLANK(_cancAA), BLANK(), _canc - _cancAA)
+			VAR _pct = "0.0%"
+			VAR _pp = "0.0"
+			VAR _neg = "<span style='color:#A4262C;'>"
+			VAR _pos = "<span style='font-weight:700;'>"
+			// trecho de variação: piora em vermelho, melhora em negrito
+			VAR _txtMargem =
+			    IF(ISBLANK(_dMargem), "",
+			        " (" & IF(_dMargem < 0, _neg & FORMAT(ABS(_dMargem) * 100, _pp) & " p.p. abaixo", _pos & FORMAT(_dMargem * 100, _pp) & " p.p. acima") & "</span> do mesmo período do ano anterior)")
+			VAR _txtDesc =
+			    IF(ISBLANK(_dDesc), "",
+			        " (" & IF(_dDesc > 0, _neg & FORMAT(_dDesc * 100, _pp) & " p.p. acima", _pos & FORMAT(ABS(_dDesc) * 100, _pp) & " p.p. abaixo") & "</span>)")
+			VAR _txtCanc =
+			    IF(ISBLANK(_dCanc), "",
+			        " (" & IF(_dCanc > 0, _neg & FORMAT(_dCanc * 100, _pp) & " p.p. acima", _pos & FORMAT(ABS(_dCanc) * 100, _pp) & " p.p. abaixo") & "</span>)")
+			VAR _insight =
+			    "Margem bruta de " & _pos & FORMAT(_margem, _pct) & "</span>" & _txtMargem &
+			    ", com desconto médio de " & _pos & FORMAT(_desc, _pct) & "</span>" & _txtDesc &
+			    IF(NOT ISBLANK(_canc), " e cancelamento de " & _pos & FORMAT(_canc, _pct) & "</span>" & _txtCanc, "") &
+			    ", em " & _pos & FORMAT(_cli, "#,##0") & " clientes ativos</span>."
+			
+			// estilos (DESING.md)
+			VAR _cTit = "#0B4F35"
+			VAR _cSec = "#475D52"
+			RETURN
+			IF(ISBLANK([Receita]),
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;font-size:12pt;color:" & _cSec & ";background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:16px;'>Sem dados para os filtros atuais</div>",
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;box-sizing:border-box;background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:16px;'>" &
+			    "<p style='font-size:14pt;font-weight:400;color:" & _cTit & ";margin:0;line-height:1.3;'>" & _insight & "</p>" &
+			    "</div>"
+			)
+		displayFolder: 4. HTML
+		lineageTag: 726c49be-9f9f-46e3-a7e9-e3d28bdbac2a
+
 	column 'Coluna 1'
 		dataType: string
 		isHidden
