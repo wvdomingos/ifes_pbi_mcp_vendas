@@ -19,8 +19,9 @@ assets/                                               # fundo 16:9, capa e logos
 ```
 
 Não há build, lint ou testes. O ciclo é: editar TMDL/PBIR → abrir o `.pbip` no Power BI Desktop →
-atualizar. **A pasta não é repositório git** (há `.gitignore` excluindo `.pbi/localSettings.json`,
-`.pbi/cache.abf` e `.obsidian/workspace.json`, pronto para quando for versionada).
+atualizar. Repositório git em `main`, remoto `origin` =
+`https://github.com/wvdomingos/ifes_pbi_mcp_vendas.git` (**público**). O `.gitignore` exclui
+`.pbi/localSettings.json`, `.pbi/cache.abf` e o estado local do Obsidian.
 
 O projeto nasceu como cópia de um projeto irmão (`.net_cachoeiro_2026_pbi_mcp_vendas`), mais avançado.
 Medidas, páginas e regras daquele projeto **não existem aqui** — não assuma que existem.

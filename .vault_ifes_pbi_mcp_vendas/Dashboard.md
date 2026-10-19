@@ -37,7 +37,7 @@ Hub de navegação do conhecimento do projeto **ifes-pbi-mcp-vendas** (evento IF
 
 ### Ferramental
 - [[Ferramental MCP e Skills]] — skills, MCP `powerbi-modeling-mcp`, fallbacks TMDL/ADOMD
-- [[Repositorio GitHub]] — pasta não versionada, `.gitignore`, licença MIT, README
+- [[Repositorio GitHub]] — remoto público, `.gitignore`, licença MIT, README
 
 ## Entidades
 

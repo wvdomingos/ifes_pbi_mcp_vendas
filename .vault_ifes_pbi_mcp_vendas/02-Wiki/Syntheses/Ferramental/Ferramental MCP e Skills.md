@@ -17,7 +17,7 @@ Síntese de `CLAUDE.md`, seção "Ferramental". Como Claude Code edita o [[Model
 
 ## Ciclo de trabalho
 
-Sem build, lint ou testes. Editar TMDL/PBIR → abrir `dashboards/ifes-pbi-mcp-vendas.pbip` no [[Power BI (Entidade)|Power BI Desktop]] → atualizar. Pasta ainda não versionada — ver [[Repositorio GitHub]].
+Sem build, lint ou testes. Editar TMDL/PBIR → abrir `dashboards/ifes-pbi-mcp-vendas.pbip` no [[Power BI (Entidade)|Power BI Desktop]] → atualizar. Versionado no GitHub — ver [[Repositorio GitHub]].
 
 ## Skills
 

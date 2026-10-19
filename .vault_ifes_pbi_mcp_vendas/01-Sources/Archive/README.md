@@ -64,7 +64,7 @@ Detalhes que valem a visita no código:
 
 **Passos**
 
-1. Copie a pasta do projeto.
+1. Clone o repositório: `git clone https://github.com/wvdomingos/ifes_pbi_mcp_vendas.git`.
 2. Ajuste o caminho da base: abra
    `dashboards/ifes-pbi-mcp-vendas.SemanticModel/definition/expressions.tmdl` e troque o valor do
    parâmetro `pCaminhoExcel` para o caminho absoluto do seu `dados/Base de Dados.xlsx`. É o único lugar
