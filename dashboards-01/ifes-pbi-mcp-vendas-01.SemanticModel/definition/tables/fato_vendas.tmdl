@@ -1,0 +1,126 @@
+/// Itens de pedido de venda. Tabela fato principal, grão de item de pedido.
+table fato_vendas
+	lineageTag: 7b4c82de-1e7d-45ba-b14d-488294548403
+
+	/// Identificador do pedido.
+	column PedidoID
+		dataType: string
+		lineageTag: 904e5443-d01d-4c87-8285-a26f6eda3640
+		summarizeBy: none
+		sourceColumn: PedidoID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Data do pedido. Liga a dim_calendario[Data].
+	column Data
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 489051b2-1d3a-4e39-9221-3d5074aecb6f
+		summarizeBy: none
+		sourceColumn: Data
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Chave do cliente. Liga a dim_clientes[ClienteID].
+	column ClienteID
+		dataType: string
+		lineageTag: b0102271-0e88-4a79-a368-d24ba10d50a8
+		summarizeBy: none
+		sourceColumn: ClienteID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Chave do produto. Liga a dim_produtos[ProdutoID].
+	column ProdutoID
+		dataType: string
+		lineageTag: d3cfc811-5bad-4e29-a6af-6725baff0d62
+		summarizeBy: none
+		sourceColumn: ProdutoID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Chave do vendedor. Liga a dim_vendedores[VendedorID].
+	column VendedorID
+		dataType: string
+		lineageTag: 986cdd51-8c41-4f5b-88cc-c5ca78dd958b
+		summarizeBy: none
+		sourceColumn: VendedorID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Canal de venda: Direto, E-commerce ou Representante.
+	column Canal
+		dataType: string
+		lineageTag: 436e4bcf-8a80-4b2b-9f32-71a96630f816
+		summarizeBy: none
+		sourceColumn: Canal
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Quantidade vendida do item.
+	column Quantidade
+		dataType: int64
+		formatString: 0
+		lineageTag: b30ca0c7-dca6-49ce-82e6-fda64efdfd94
+		summarizeBy: sum
+		sourceColumn: Quantidade
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Preço unitário praticado, antes do desconto.
+	column PrecoUnitario
+		dataType: double
+		formatString: \R\$ #,##0.00
+		lineageTag: 4a31cf95-9e60-4034-99e6-1f685a2c00e4
+		summarizeBy: sum
+		sourceColumn: PrecoUnitario
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Percentual de desconto aplicado ao item.
+	column DescontoPct
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 27ede497-6d4a-4b74-a766-7266d64cbdab
+		summarizeBy: sum
+		sourceColumn: DescontoPct
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Custo unitário do item.
+	column CustoUnitario
+		dataType: double
+		formatString: \R\$ #,##0.00
+		lineageTag: 0f1c7040-84f8-4f1e-8370-da1faa41f011
+		summarizeBy: sum
+		sourceColumn: CustoUnitario
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Situação do pedido: Faturado ou Cancelado.
+	column Status
+		dataType: string
+		lineageTag: bde70751-445d-4994-9f69-58fa2f6feb93
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fato_vendas = m
+		mode: import
+		queryGroup: Fato
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="fato_vendas",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido,{{"PedidoID", type text}, {"Data", type date}, {"ClienteID", type text}, {"ProdutoID", type text}, {"VendedorID", type text}, {"Canal", type text}, {"Quantidade", Int64.Type}, {"PrecoUnitario", type number}, {"DescontoPct", type number}, {"CustoUnitario", type number}, {"Status", type text}})
+				in
+				    TipoAlterado
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

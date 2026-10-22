@@ -1,0 +1,66 @@
+/// Cadastro de produtos. Dimensão do star schema de vendas.
+table dim_produtos
+	lineageTag: f6adc461-e9d9-437c-810c-3baba4a7ee35
+
+	/// Chave do produto. Liga a fato_vendas[ProdutoID].
+	column ProdutoID
+		dataType: string
+		lineageTag: d35ad655-f1a6-446d-90d8-1a40ba8a102e
+		summarizeBy: none
+		sourceColumn: ProdutoID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nome do produto.
+	column Produto
+		dataType: string
+		lineageTag: ff4fbc09-a878-4aae-849d-4d41aeb1d9c7
+		summarizeBy: none
+		sourceColumn: Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Categoria do produto.
+	column Categoria
+		dataType: string
+		lineageTag: 66579e4a-7da7-4e1c-895e-31c2c6a9fd7e
+		summarizeBy: none
+		sourceColumn: Categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Linha de produto.
+	column Linha
+		dataType: string
+		lineageTag: 894a85fe-adaa-4561-8b52-ac3901e08cd4
+		summarizeBy: none
+		sourceColumn: Linha
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Preço de tabela do produto, sem desconto.
+	column PrecoLista
+		dataType: double
+		formatString: \R\$ #,##0.00
+		lineageTag: 2a173d73-f60f-4ac8-b5e8-895a9f8d2b8d
+		summarizeBy: none
+		sourceColumn: PrecoLista
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_produtos = m
+		mode: import
+		queryGroup: Dimensão
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="dim_produtos",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido,{{"ProdutoID", type text}, {"Produto", type text}, {"Categoria", type text}, {"Linha", type text}, {"PrecoLista", type number}})
+				in
+				    TipoAlterado
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

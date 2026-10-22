@@ -1,0 +1,229 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 1.4093331472388955,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 83.15065568709484,
+            "y": 161.12264228829531
+          },
+          "nodeIndex": "dim_calendario",
+          "nodeLineageTag": "f1185e95-6e87-48a2-bdc9-5451f866d9bd",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 5,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1426.8440233274412,
+            "y": 154.79913216494228
+          },
+          "nodeIndex": "Medidas",
+          "nodeLineageTag": "bc5a0d18-53a9-42ca-ba07-59354dc4292e",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 6,
+          "expandedHeight": 224
+        },
+        {
+          "location": {
+            "x": 1474.1758676449201,
+            "y": 461.79130429364528
+          },
+          "nodeIndex": "Atualizacao",
+          "nodeLineageTag": "fc6e55e5-4a28-425e-8253-87f9582ab46f",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 7,
+          "expandedHeight": 104
+        },
+        {
+          "location": {
+            "x": 1486.199916257503,
+            "y": 354.50662665636247
+          },
+          "nodeIndex": "documentacao",
+          "nodeLineageTag": "fc21a839-86b1-4797-b1fb-6eca6aa5d2bf",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 8,
+          "expandedHeight": 200
+        },
+        {
+          "location": {
+            "x": 1470.0119558956183,
+            "y": 231.22130299993995
+          },
+          "nodeIndex": "Meta_Columns",
+          "nodeLineageTag": "69b9fac4-2e87-46a4-8ba2-9c0c901dee84",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 9,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1420,
+            "y": 49.417327006122434
+          },
+          "nodeIndex": "Meta_Measures",
+          "nodeLineageTag": "de3e9633-57aa-456f-bc7d-5b9eccda7eba",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 10,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1423.54270369946,
+            "y": 683.61724326362537
+          },
+          "nodeIndex": "Meta_Relationships",
+          "nodeLineageTag": "60144a21-f83e-45aa-bec8-c43ca142883a",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 11,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1445.4067598177423,
+            "y": 579.32659036794712
+          },
+          "nodeIndex": "Meta_Tables",
+          "nodeLineageTag": "088ba65c-bfd7-49c4-af62-d28edbdbef4e",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 12,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 427.36350617256596,
+            "y": 581.82248780028067
+          },
+          "nodeIndex": "fato_vendas",
+          "nodeLineageTag": "7b4c82de-1e7d-45ba-b14d-488294548403",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 901.47461321179435,
+            "y": 892.5665457052819
+          },
+          "nodeIndex": "dim_clientes",
+          "nodeLineageTag": "4594019e-5374-455c-9558-dc50b95440ba",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 1,
+          "expandedHeight": 200
+        },
+        {
+          "location": {
+            "x": 76.329426334783562,
+            "y": 882.70121367460979
+          },
+          "nodeIndex": "dim_produtos",
+          "nodeLineageTag": "f6adc461-e9d9-437c-810c-3baba4a7ee35",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 2,
+          "expandedHeight": 200
+        },
+        {
+          "location": {
+            "x": 819.77203233466366,
+            "y": 240.04529853367345
+          },
+          "nodeIndex": "dim_vendedores",
+          "nodeLineageTag": "c7e8db38-dcc8-4acd-88ce-71f3de116993",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 3,
+          "expandedHeight": 176
+        },
+        {
+          "location": {
+            "x": 424.47345536551569,
+            "y": 403.20322910563249
+          },
+          "nodeIndex": "metas_mensais",
+          "nodeLineageTag": "d7cde546-4bf7-4f52-bee0-79d0f44b7492",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 487.48131588622505,
+            "y": 35.7519810183673
+          },
+          "nodeIndex": "fato_cotacao_moeda",
+          "nodeLineageTag": "735419f3-4739-4e2b-95b6-0f7359823396",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 14,
+          "expandedHeight": 248
+        },
+        {
+          "location": {
+            "x": 1693.8704899227193,
+            "y": 416.32460934957976
+          },
+          "nodeIndex": "Moeda",
+          "nodeLineageTag": "73a138a2-7597-4d18-ae91-4ad78018c8de",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas as tabelas",
+      "zoomValue": 70.95554390096882,
+      "pinKeyFieldsToTop": true,
+      "showExtraHeaderInfo": true,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas as tabelas",
+  "defaultDiagram": "Todas as tabelas"
+}

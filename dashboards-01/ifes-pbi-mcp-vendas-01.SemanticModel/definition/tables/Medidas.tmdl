@@ -1,0 +1,72 @@
+table Medidas
+	lineageTag: bc5a0d18-53a9-42ca-ba07-59354dc4292e
+
+	measure txtAtualizacao = "Atualização: " & MAX(Atualizacao[Data e Hora])
+		displayFolder: 0. Aux
+		lineageTag: 97da66ff-53c2-478e-91bb-da888222b682
+
+	measure Dummy = {0}
+		formatString: 0
+		displayFolder: 0. Aux
+		lineageTag: 3581f06a-c2d1-44f6-bab6-7702f11c7db4
+
+	/// Cor para formatação condicional (valor do campo) do Atingimento %: abaixo de 100% vermelho crítico #A4262C; 100% ou mais verde primário #176B3A. Vazio sem atingimento.
+	measure 'Cor Atingimento' =
+			VAR _a = [Atingimento %]
+			RETURN
+			    SWITCH(TRUE(),
+			        ISBLANK(_a), BLANK(),
+			        _a < 1, "#A4262C",
+			        "#176B3A")
+		displayFolder: 0. Aux
+		lineageTag: b0e1a1f8-c9bd-4ef1-b97e-2bc78e7a13f1
+
+	/// Cor em degradê para formatação condicional do Atingimento %: vermelho #A4262C em 50% ou menos, âmbar #9C6500 em 100% e verde escuro #0B4F35 em 150% ou mais, interpolando em RGB entre os pontos. Faixa 50%–150% escolhida pelo usuário para demonstração.
+	measure 'Cor Atingimento Degradê' =
+			VAR _a = [Atingimento %]
+			VAR _min = 0.5
+			VAR _meio = 1
+			VAR _max = 1.5
+			VAR _p = MIN(MAX(_a, _min), _max)
+			VAR _seg1 = _p <= _meio
+			VAR _t = IF(_seg1, DIVIDE(_p - _min, _meio - _min), DIVIDE(_p - _meio, _max - _meio))
+			// vermelho #A4262C -> âmbar #9C6500 -> verde escuro #0B4F35
+			VAR _r = ROUND(IF(_seg1, 164 + (156 - 164) * _t, 156 + (11 - 156) * _t), 0)
+			VAR _g = ROUND(IF(_seg1, 38 + (101 - 38) * _t, 101 + (79 - 101) * _t), 0)
+			VAR _b = ROUND(IF(_seg1, 44 + (0 - 44) * _t, 0 + (53 - 0) * _t), 0)
+			VAR _hex = "0123456789ABCDEF"
+			RETURN
+			    IF(ISBLANK(_a), BLANK(),
+			        "#"
+			            & MID(_hex, QUOTIENT(_r, 16) + 1, 1) & MID(_hex, MOD(_r, 16) + 1, 1)
+			            & MID(_hex, QUOTIENT(_g, 16) + 1, 1) & MID(_hex, MOD(_g, 16) + 1, 1)
+			            & MID(_hex, QUOTIENT(_b, 16) + 1, 1) & MID(_hex, MOD(_b, 16) + 1, 1))
+		displayFolder: 0. Aux
+		lineageTag: 504f401e-ec23-457d-8298-838e11942cf5
+
+	column 'Coluna 1'
+		dataType: string
+		isHidden
+		displayFolder: 0. Aux
+		lineageTag: 19e8eccc-c0b9-4766-a2c5-18275edf870f
+		summarizeBy: none
+		sourceColumn: Coluna 1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Medidas = m
+		mode: import
+		queryGroup: Aux
+		source =
+				let
+				    Fonte = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Coluna 1" = _t]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(Fonte,{{"Coluna 1", type text}})
+				in
+				    #"Tipo Alterado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegação
+

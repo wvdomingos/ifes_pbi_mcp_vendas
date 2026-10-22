@@ -1,0 +1,51 @@
+/// Metas de venda por vendedor e mês. Grão mês × vendedor — diferente do grão de fato_vendas.
+table metas_mensais
+	lineageTag: d7cde546-4bf7-4f52-bee0-79d0f44b7492
+
+	/// Primeiro dia do mês da meta. Grão mensal, não diário.
+	column DataMes
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b0cd88a2-12b1-465c-bc13-c9f1c6878a74
+		summarizeBy: none
+		sourceColumn: DataMes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Chave do vendedor. Liga a dim_vendedores[VendedorID].
+	column VendedorID
+		dataType: string
+		lineageTag: c8aaf9dd-9d34-46cb-b946-275efc45307e
+		summarizeBy: none
+		sourceColumn: VendedorID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Meta de faturamento do vendedor no mês.
+	column MetaValor
+		dataType: double
+		formatString: \R\$ #,##0.00
+		lineageTag: 118f2a25-12fe-4ca0-b646-d42b33a57c6b
+		summarizeBy: sum
+		sourceColumn: MetaValor
+
+		annotation SummarizationSetBy = Automatic
+
+	partition metas_mensais = m
+		mode: import
+		queryGroup: Fato
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="metas_mensais",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido,{{"DataMes", type date}, {"VendedorID", type text}, {"MetaValor", type number}})
+				in
+				    TipoAlterado
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

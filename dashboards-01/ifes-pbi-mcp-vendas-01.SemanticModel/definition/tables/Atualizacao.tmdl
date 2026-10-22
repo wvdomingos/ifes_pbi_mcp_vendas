@@ -1,0 +1,37 @@
+table Atualizacao
+	isHidden
+	lineageTag: fc6e55e5-4a28-425e-8253-87f9582ab46f
+
+	column 'Data e Hora'
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: 4a6f70a6-0c04-4d6f-85ae-9b5fa2bfd1de
+		summarizeBy: none
+		sourceColumn: Data e Hora
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Atualizacao = m
+		mode: import
+		queryGroup: Aux
+		source =
+				let
+					Fonte = DateTime.LocalNow(),
+					#"Convertido para Tabela" = #table(1, {{Fonte}}),
+					#"Colunas Renomeadas" = Table.RenameColumns(#"Convertido para Tabela",{{"Column1", "Data Errada"}}),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Colunas Renomeadas",{{"Data Errada", type datetimezone}}),
+					#"Personalização Adicionada" = Table.AddColumn(#"Tipo Alterado", "Data e Hora", each DateTimeZone.SwitchZone([Data Errada],-3)),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Personalização Adicionada",{{"Data e Hora", type datetimezone}}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Tipo Alterado1",{"Data Errada"})
+				in
+				    #"Colunas Removidas"
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

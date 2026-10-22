@@ -1,0 +1,9 @@
+/// Caminho completo do arquivo Excel que alimenta o modelo. Altere aqui ao mover a base.
+expression pCaminhoExcel = "D:\Projetos\ifes_pbi_mcp_vendas\dados\Base de Dados.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: ab4e688d-80b7-4191-aac1-c8b844a1adc4
+	queryGroup: Aux
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navegação
+

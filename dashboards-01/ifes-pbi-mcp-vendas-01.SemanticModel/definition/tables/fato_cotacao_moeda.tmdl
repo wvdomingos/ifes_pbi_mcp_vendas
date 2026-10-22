@@ -1,0 +1,92 @@
+/// Cotação diária do dólar (U$) em reais a partir de 2025-01-01 (início de dim_calendario), uma linha por moeda × data útil. Fins de semana e feriados não têm linha; valores ≤ 0 e datas repetidas são descartados na carga.
+table fato_cotacao_moeda
+	lineageTag: 735419f3-4739-4e2b-95b6-0f7359823396
+
+	/// Código da moeda na origem.
+	column id_moeda
+		dataType: int64
+		formatString: 0
+		lineageTag: 9a09273f-8d00-4ba4-8a35-8a7859f9ea18
+		summarizeBy: none
+		sourceColumn: id_moeda
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Símbolo da moeda (ex.: U$).
+	column moeda
+		dataType: string
+		lineageTag: dd854c97-d3bd-43d9-b08e-9a4c6cfd6819
+		summarizeBy: none
+		sourceColumn: moeda
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nome da moeda.
+	column nome
+		dataType: string
+		lineageTag: b3739b6d-4eaf-46eb-956c-d0ad23ed9452
+		summarizeBy: none
+		sourceColumn: nome
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Format string sugerida para valores na moeda.
+	column formatacao
+		dataType: string
+		lineageTag: 8da33556-59f1-4689-969c-bebfc16efaf3
+		summarizeBy: none
+		sourceColumn: formatacao
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Data da cotação; liga a dim_calendario[Data].
+	column data_cotacao
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 73c7bf4f-ba5b-4306-b8ba-4bb9fba8dcd7
+		summarizeBy: none
+		sourceColumn: data_cotacao
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Valor de 1 unidade da moeda em reais (R$) na data_cotacao.
+	column valor_cotacao
+		dataType: double
+		formatString: #,##0.0000
+		lineageTag: ae71ccd6-b942-4af6-a087-0c70cc4d4660
+		summarizeBy: none
+		sourceColumn: valor_cotacao
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Data e hora em que a cotação foi carregada na origem.
+	column data_carga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 13bc5fd1-c2d7-4369-8440-42fe1fb042d1
+		summarizeBy: none
+		sourceColumn: data_carga
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fato_cotacao_moeda = m
+		mode: import
+		queryGroup: Fato
+		source =
+				let
+				    Fonte = Excel.Workbook(File.Contents(pCaminhoExcel), null, true),
+				    Planilha = Fonte{[Item="fato_cotacao_moeda",Kind="Sheet"]}[Data],
+				    CabecalhoPromovido = Table.PromoteHeaders(Planilha, [PromoteAllScalars=true]),
+				    TipoAlterado = Table.TransformColumnTypes(CabecalhoPromovido, {{"id_moeda", Int64.Type}, {"moeda", type text}, {"nome", type text}, {"formatacao", type text}, {"data_cotacao", type date}, {"valor_cotacao", type number}, {"data_carga", type datetime}}),
+				    CotacaoValida = Table.SelectRows(TipoAlterado, each [data_cotacao] <> null and [valor_cotacao] <> null and [valor_cotacao] > 0),
+				    APartirDe2025 = Table.SelectRows(CotacaoValida, each [data_cotacao] >= #date(2025, 1, 1)),
+				    SemDuplicatas = Table.Distinct(APartirDe2025, {"moeda", "data_cotacao"})
+				in
+				    SemDuplicatas
+
+	annotation PBI_ResultType = Table
+
