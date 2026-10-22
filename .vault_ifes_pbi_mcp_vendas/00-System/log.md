@@ -11,6 +11,16 @@ status: active
 
 Append-only. Entradas mais recentes no topo.
 
+## [2026-10-22] atualização | Cotação do dólar, parâmetro R$/U$ e cores de atingimento
+
+- **Operação:** registrar `fato_cotacao_moeda` (adicionada pelo usuário; analisada via MCP), correções na aba do Excel (4 zeros e 2 datas duplicadas removidos — decisão do usuário: corrigir na planilha por ser demonstração), filtros no Power Query (valor > 0, ≥ 2025-01-01, sem duplicatas); tabela-parâmetro `Moeda`; pasta `5. Câmbio` e conversão de Receita/Receita Bruta/Custo/Meta pela cotação diária, format string dinâmica R$/US$, HTML da Visão Executiva com símbolo dinâmico; medidas `Cor Atingimento` e `Cor Atingimento Degradê`
+- **Fontes processadas:** `CLAUDE.md` (cópia arquivada atualizada); modelo vivo via MCP; `definition/tables/*.tmdl` salvos pelo Desktop
+- **Artefatos criados:** `02-Wiki/Entities/fato_cotacao_moeda (Entidade).md`, `02-Wiki/Entities/Moeda (Entidade).md`
+- **Artefatos atualizados:** `Medidas (Entidade)`, `Modelo Semantico`, `Fonte de Dados`, `00-System/index.md`, `Dashboard.md`
+- **Pendências:** faixa 50–150% do degradê sem limiar de negócio confirmado
+- **Realizado por:** Claude Code
+- **Aprovado por:** Wander
+
 ## [2026-10-19] reingest | Base ampliada, 28 medidas, HTML e tema IFES
 
 - **Operação:** registrar trabalho do dia: base sintética ampliada (30 clientes Norte/Sul/Centro-Oeste, vendas até 2026-09-17, 4189 linhas); 26 medidas novas via MCP (`1. Vendas`, `2. Meta` com `Meta Comparável`, `3. Tempo`, `4. HTML`); regra de meta por vendedor × mês; HTML KPIs e Narrativa na `Visão Executiva` com destaques negativo vermelho / positivo negrito (decisão do usuário); narrativa reduzida à frase de insight (decisão do usuário); tema custom `assets/tema_ifes_comercio_exterior.json` aplicado

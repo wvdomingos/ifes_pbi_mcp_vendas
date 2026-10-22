@@ -29,7 +29,9 @@ Catálogo geral de conteúdo. Atualizado a cada ingest.
 | [[fato_vendas (Entidade)]] | Fato principal de vendas |
 | [[metas_mensais (Entidade)]] | Fato de metas, grão mês × vendedor, liga pelo dia 1 |
 | [[dim_calendario (Entidade)]] | Calendário gerado em M, parâmetros no topo do M |
-| [[Medidas (Entidade)]] | Container das 28 medidas (vendas, meta, tempo, HTML) |
+| [[fato_cotacao_moeda (Entidade)]] | Fato de cotação diária do dólar (≥ 2025) |
+| [[Moeda (Entidade)]] | Parâmetro desconectado R$ / U$ |
+| [[Medidas (Entidade)]] | Container das 40 medidas (vendas, meta, tempo, HTML, câmbio, cores) |
 | [[documentacao (Entidade)]] | Auto-documentação via `INFO.VIEW.*()` |
 | [[Power BI (Entidade)]] | Plataforma; Desktop em Developer Mode |
 | [[Paleta - Dashboard Power BI]] | Tokens de cor verdes/claros do IFES |
@@ -49,7 +51,7 @@ Catálogo geral de conteúdo. Atualizado a cada ingest.
 | Métrica | Valor |
 |---|---|
 | Total de Sínteses | 6 |
-| Total de Entidades | 7 |
+| Total de Entidades | 9 |
 | Total de Conceitos | 5 |
 | Fontes processadas | 3 |
-| Último ingest | 2026-10-19 |
+| Último ingest | 2026-10-22 |

@@ -20,7 +20,7 @@ queryGroup Dimensão
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["pCaminhoExcel","dim_calendario","Atualizacao","Medidas","dim_clientes","dim_produtos","dim_vendedores","metas_mensais","fato_vendas"]
+annotation PBI_QueryOrder = ["pCaminhoExcel","dim_calendario","Atualizacao","Medidas","dim_clientes","dim_produtos","dim_vendedores","metas_mensais","fato_vendas","fato_cotacao_moeda"]
 
 annotation PBI_ProTooling = ["TMDLView_Desktop","DevMode","MCP-PBIModeling"]
 
@@ -37,6 +37,8 @@ ref table dim_produtos
 ref table dim_vendedores
 ref table metas_mensais
 ref table fato_vendas
+ref table fato_cotacao_moeda
+ref table Moeda
 
 ref cultureInfo pt-BR
 

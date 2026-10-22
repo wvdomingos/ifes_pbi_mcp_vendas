@@ -4,7 +4,7 @@ tags:
   - entity
   - modelo
   - dax
-date: 2026-10-19
+date: 2026-10-22
 status: active
 fontes:
   - "[[CLAUDE]]"
@@ -14,15 +14,32 @@ fontes:
 
 Tabela vazia do [[Modelo Semantico]] que serve só de **container de medidas**. Grupo `Aux`, tabela visível (só a coluna `Coluna 1` é oculta). Toda medida nova vai aqui. Criadas via [[MCP (Conceito)|MCP]] em 2026-10-19 sobre [[fato_vendas (Entidade)|fato_vendas]] e [[metas_mensais (Entidade)|metas_mensais]].
 
-## Medidas existentes (28)
+## Medidas existentes (40)
 
 | Pasta | Medidas |
 |---|---|
-| `0. Aux` | `txtAtualizacao`, `Dummy` (sem `description`) |
+| `0. Aux` | `txtAtualizacao`, `Dummy` (sem `description`), `Cor Atingimento`, `Cor Atingimento Degradê` |
 | `1. Vendas` | Receita, Receita Bruta, Desconto, Desconto %, Custo, Margem Bruta, Margem Bruta %, Quantidade Vendida, Pedidos, Pedidos Cancelados, Taxa de Cancelamento %, Ticket Médio, Clientes Ativos |
-| `2. Meta` | Meta, Meta Comparável, Atingimento %, Gap Meta |
+| `2. Meta` | Meta, Meta Comparável, Atingimento %, Gap Meta, Meta Max (criada pelo usuário, `= 1`) |
 | `3. Tempo` | Receita Ano Anterior, Receita Var. Anual %, Receita Mês Anterior, Receita Var. Mensal %, Receita Acumulada Ano, Meta Acumulada Ano, Atingimento Acumulado Ano % |
-| `4. HTML` | HTML KPIs Visão Executiva, HTML Narrativa Visão Executiva |
+| `4. HTML` | HTML KPIs / Narrativa Visão Executiva, HTML KPIs / Narrativa Desempenho Comercial |
+| `5. Câmbio` | Moeda Selecionada, Cotação Dólar, Cotação Média; ocultas: Receita R$, Receita Bruta R$, Custo R$, Meta R$ |
+
+## Câmbio R$ / U$ (2026-10-22)
+
+`Receita`, `Receita Bruta`, `Custo` e `Meta` convertem pela cotação diária quando o parâmetro [[Moeda (Entidade)|Moeda]] = U$; todas as derivadas herdam. Medidas monetárias têm format string dinâmica (`R$` / `US$`). Detalhes em [[Moeda (Entidade)]] e [[fato_cotacao_moeda (Entidade)]].
+
+## Cores condicionais (2026-10-22)
+
+Para formatação condicional por **valor do campo** (fx → Estilo: Valor do campo):
+
+| Medida | Regra |
+|---|---|
+| `Cor Atingimento` | `[Atingimento %]` < 100% → `#A4262C`; ≥ 100% → `#176B3A`; vazio sem atingimento |
+| `Cor Atingimento Degradê` | Interpolação RGB: ≤ 50% `#A4262C` → 100% `#9C6500` → ≥ 150% `#0B4F35` |
+
+> [!WARNING]
+> Pontos 50% / 100% / 150% do degradê foram escolha do Claude para a demonstração, sem limiar de negócio confirmado (o [[DESING - Contrato Visual]] pede não inventar limiares). Ajuste as variáveis `_min`, `_meio`, `_max` se o negócio definir outros.
 
 ## Regras
 

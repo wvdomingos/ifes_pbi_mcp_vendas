@@ -1,0 +1,30 @@
+/// Parâmetro de moeda (desconectado): R$ mostra os valores originais; U$ converte receita, custo e meta pela cotação do dólar em fato_cotacao_moeda.
+table Moeda
+	lineageTag: 73a138a2-7597-4d18-ae91-4ad78018c8de
+
+	/// Símbolo da moeda: R$ ou U$.
+	column Moeda
+		lineageTag: fe92cc00-8d82-480e-9f40-8dab671bb7f4
+		isNameInferred
+		sourceColumn: [Moeda]
+		sortByColumn: Ordem
+
+	/// Ordem de exibição.
+	column Ordem
+		isHidden
+		lineageTag: f82b0cfe-18ae-485a-b33d-72ac507141dd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ordem]
+
+	/// Nome da moeda para segmentador.
+	column Descricao
+		lineageTag: 42b41475-6056-4fae-9bfa-fdb57fc3e48b
+		isNameInferred
+		sourceColumn: [Descricao]
+		sortByColumn: Ordem
+
+	partition Moeda = calculated
+		mode: import
+		source = DATATABLE("Moeda", STRING, "Ordem", INTEGER, "Descricao", STRING, {{"R$", 1, "Real (R$)"}, {"U$", 2, "Dólar (US$)"}})
+

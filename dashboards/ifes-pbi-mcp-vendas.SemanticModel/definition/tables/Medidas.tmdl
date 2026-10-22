@@ -10,31 +10,32 @@ table Medidas
 		displayFolder: 0. Aux
 		lineageTag: 3581f06a-c2d1-44f6-bab6-7702f11c7db4
 
-	/// Soma de Quantidade × PrecoUnitario dos pedidos faturados, antes do desconto.
+	/// Receita antes do desconto, só faturado. Em U$ converte cada dia pela [Cotação Dólar] vigente.
 	measure 'Receita Bruta' =
-			CALCULATE(
-			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[PrecoUnitario]),
-			    fato_vendas[Status] = "Faturado"
-			)
-		formatString: "R$" #,##0.00
+			IF([Moeda Selecionada] = "U$",
+			    SUMX(VALUES(dim_calendario[Data]), DIVIDE([Receita Bruta R$], [Cotação Dólar])),
+			    [Receita Bruta R$])
 		displayFolder: 1. Vendas
 		lineageTag: d770164e-f96f-4c21-8af1-8dd95482a864
 
-	/// Receita líquida dos pedidos faturados: Σ Quantidade × PrecoUnitario × (1 − DescontoPct).
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
+
+	/// Receita líquida faturada: Σ Quantidade × PrecoUnitario × (1 − DescontoPct). Em U$ converte cada dia pela [Cotação Dólar] vigente.
 	measure Receita =
-			CALCULATE(
-			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[PrecoUnitario] * (1 - fato_vendas[DescontoPct])),
-			    fato_vendas[Status] = "Faturado"
-			)
-		formatString: "R$" #,##0.00
+			IF([Moeda Selecionada] = "U$",
+			    SUMX(VALUES(dim_calendario[Data]), DIVIDE([Receita R$], [Cotação Dólar])),
+			    [Receita R$])
 		displayFolder: 1. Vendas
 		lineageTag: 90935420-8710-47e8-a515-3666026cd4d1
 
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
+
 	/// Valor concedido em desconto nos pedidos faturados (Receita Bruta − Receita).
 	measure Desconto = [Receita Bruta] - [Receita]
-		formatString: "R$" #,##0.00
 		displayFolder: 1. Vendas
 		lineageTag: 557ab5cd-678f-4d2e-afb3-5c955487af04
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Desconto sobre a Receita Bruta dos pedidos faturados.
 	measure 'Desconto %' = DIVIDE([Desconto], [Receita Bruta])
@@ -42,21 +43,22 @@ table Medidas
 		displayFolder: 1. Vendas
 		lineageTag: 510f0c4d-5806-4445-bdf7-24cde39c8a36
 
-	/// Custo dos pedidos faturados: Σ Quantidade × CustoUnitario.
+	/// Custo das vendas faturadas: Σ Quantidade × CustoUnitario. Em U$ converte cada dia pela [Cotação Dólar] vigente.
 	measure Custo =
-			CALCULATE(
-			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[CustoUnitario]),
-			    fato_vendas[Status] = "Faturado"
-			)
-		formatString: "R$" #,##0.00
+			IF([Moeda Selecionada] = "U$",
+			    SUMX(VALUES(dim_calendario[Data]), DIVIDE([Custo R$], [Cotação Dólar])),
+			    [Custo R$])
 		displayFolder: 1. Vendas
 		lineageTag: 4f093b82-a45e-4516-8460-be1fefc7ce1e
 
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
+
 	/// Receita menos Custo dos pedidos faturados.
 	measure 'Margem Bruta' = [Receita] - [Custo]
-		formatString: "R$" #,##0.00
 		displayFolder: 1. Vendas
 		lineageTag: 61edf1b8-e69f-4050-9de0-40ecca07483a
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Margem Bruta sobre a Receita.
 	measure 'Margem Bruta %' = DIVIDE([Margem Bruta], [Receita])
@@ -90,9 +92,10 @@ table Medidas
 
 	/// Receita por pedido faturado.
 	measure 'Ticket Médio' = DIVIDE([Receita], [Pedidos])
-		formatString: "R$" #,##0.00
 		displayFolder: 1. Vendas
 		lineageTag: 212aa855-97d4-4214-810d-758423c32400
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Clientes distintos com ao menos um pedido faturado no contexto.
 	measure 'Clientes Ativos' = CALCULATE(DISTINCTCOUNT(fato_vendas[ClienteID]), fato_vendas[Status] = "Faturado")
@@ -100,11 +103,15 @@ table Medidas
 		displayFolder: 1. Vendas
 		lineageTag: 23245d12-0e32-4cfe-ab73-11794896684d
 
-	/// Soma de MetaValor (grão mês × vendedor, ligada ao calendário pelo dia 1 do mês; filtro diário sem o dia 1 devolve vazio).
-	measure Meta = SUM(metas_mensais[MetaValor])
-		formatString: "R$" #,##0.00
+	/// Soma de metas_mensais[MetaValor] (grão vendedor × mês, data no dia 1). Em U$ converte pela cotação vigente no dia 1 de cada mês.
+	measure Meta =
+			IF([Moeda Selecionada] = "U$",
+			    SUMX(VALUES(dim_calendario[Data]), DIVIDE([Meta R$], [Cotação Dólar])),
+			    [Meta R$])
 		displayFolder: 2. Meta
 		lineageTag: b54f00da-f239-486c-8fae-873250c874f4
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Receita sobre a Meta. Vazio quando não há meta ou receita no contexto, ou quando há filtro de cliente, produto, canal ou status (a meta não se divide por essas dimensões).
 	measure 'Atingimento %' =
@@ -125,15 +132,17 @@ table Medidas
 			    ISFILTERED(dim_clientes) || ISFILTERED(dim_produtos)
 			        || ISFILTERED(fato_vendas[Canal]) || ISFILTERED(fato_vendas[Status])
 			RETURN IF(_recorteSemMeta || ISBLANK(_meta), BLANK(), [Receita] - _meta)
-		formatString: "R$" #,##0.00
 		displayFolder: 2. Meta
 		lineageTag: 0eebac6a-0f55-4d37-b638-69115d18ea08
 
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
+
 	/// Receita no mesmo período do ano anterior (SAMEPERIODLASTYEAR sobre dim_calendario).
 	measure 'Receita Ano Anterior' = CALCULATE([Receita], SAMEPERIODLASTYEAR(dim_calendario[Data]))
-		formatString: "R$" #,##0.00
 		displayFolder: 3. Tempo
 		lineageTag: 3cfba5b5-479a-4319-8ae3-8bdf623d3525
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Variação da Receita contra o mesmo período do ano anterior. Vazio quando falta Receita atual ou base do ano anterior (mês futuro não vira -100%).
 	measure 'Receita Var. Anual %' =
@@ -146,9 +155,10 @@ table Medidas
 
 	/// Receita do período deslocado um mês para trás (DATEADD -1 MONTH).
 	measure 'Receita Mês Anterior' = CALCULATE([Receita], DATEADD(dim_calendario[Data], -1, MONTH))
-		formatString: "R$" #,##0.00
 		displayFolder: 3. Tempo
 		lineageTag: b0e74cb9-32cd-40a7-8157-51c62d467986
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Variação da Receita contra o mês anterior. Vazio quando falta Receita atual ou base.
 	measure 'Receita Var. Mensal %' =
@@ -163,17 +173,19 @@ table Medidas
 	measure 'Receita Acumulada Ano' =
 			VAR _ultimaVenda = CALCULATE(MAX(fato_vendas[Data]), REMOVEFILTERS())
 			RETURN IF(MIN(dim_calendario[Data]) > _ultimaVenda, BLANK(), CALCULATE([Receita], DATESYTD(dim_calendario[Data])))
-		formatString: "R$" #,##0.00
 		displayFolder: 3. Tempo
 		lineageTag: 7c54da06-b52f-4b0b-ba65-4fd119d85782
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Meta acumulada do início do ano até a última data do contexto (DATESYTD). Meta é mensal, gravada no dia 1. Vazio em períodos posteriores à última venda.
 	measure 'Meta Acumulada Ano' =
 			VAR _ultimaVenda = CALCULATE(MAX(fato_vendas[Data]), REMOVEFILTERS())
 			RETURN IF(MIN(dim_calendario[Data]) > _ultimaVenda, BLANK(), CALCULATE([Meta], DATESYTD(dim_calendario[Data])))
-		formatString: "R$" #,##0.00
 		displayFolder: 3. Tempo
 		lineageTag: 8b5f3498-e62a-496c-871c-702ce1e9f639
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// Receita Acumulada Ano sobre Meta Acumulada Ano. Vazio sem meta, sem receita acumulada ou com filtro de cliente, produto, canal ou status.
 	measure 'Atingimento Acumulado Ano %' =
@@ -207,6 +219,7 @@ table Medidas
 			VAR _varReceita = IF(ISBLANK(_receitaAA) || _receitaAA = 0, BLANK(), DIVIDE(_receita - _receitaAA, _receitaAA))
 			VAR _varPedidos = IF(ISBLANK(_pedidosAA) || _pedidosAA = 0, BLANK(), DIVIDE(_pedidos - _pedidosAA, _pedidosAA))
 			VAR _varTicket = IF(ISBLANK(_ticketAA) || _ticketAA = 0, BLANK(), DIVIDE(_ticket - _ticketAA, _ticketAA))
+			VAR _sim = IF([Moeda Selecionada] = "U$", "US$ ", "R$ ")
 			
 			// tokens do DESING.md
 			VAR _cTit = "#0B4F35"
@@ -220,7 +233,7 @@ table Medidas
 			VAR _valNeg = "font-size:28pt;font-weight:600;color:#A4262C;line-height:1.1;margin:0;white-space:nowrap;"
 			VAR _cmp = "font-size:10pt;color:" & _cSec & ";margin:4px 0 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
 			
-			VAR _receitaTxt = "R$ " & FORMAT(_receita / 1000000, "#,##0.00") & " mi"
+			VAR _receitaTxt = _sim & FORMAT(_receita / 1000000, "#,##0.00") & " mi"
 			VAR _receitaCmp =
 			    IF(NOT ISBLANK(_varReceita),
 			        IF(_varReceita < 0, _neg, _pos) & FORMAT(_varReceita, _fmtVar) & "</span> vs. mesmo período do ano anterior",
@@ -230,17 +243,17 @@ table Medidas
 			    SWITCH(TRUE(),
 			        _recorteSemMeta, "Meta é por vendedor; não se aplica a este recorte",
 			        ISBLANK(_meta), "Meta não definida para o período",
-			        "Meta R$ " & FORMAT(_meta / 1000000, "#,##0.00") & " mi · " &
+			        "Meta " & _sim & FORMAT(_meta / 1000000, "#,##0.00") & " mi · " &
 			        IF(_gap >= 0,
-			            _pos & "folga de R$ " & FORMAT(_gap / 1000000, "#,##0.00") & " mi</span>",
-			            _neg & "faltam R$ " & FORMAT(ABS(_gap) / 1000000, "#,##0.00") & " mi</span>"))
+			            _pos & "folga de " & _sim & FORMAT(_gap / 1000000, "#,##0.00") & " mi</span>",
+			            _neg & "faltam " & _sim & FORMAT(ABS(_gap) / 1000000, "#,##0.00") & " mi</span>"))
 			VAR _pedidosCmp =
 			    IF(NOT ISBLANK(_varPedidos),
 			        IF(_varPedidos < 0, _neg, _pos) & FORMAT(_varPedidos, _fmtVar) & "</span> vs. mesmo período (" & FORMAT(_pedidosAA, "#,##0") & ")",
 			        "Sem base no ano anterior")
 			VAR _ticketCmp =
 			    IF(NOT ISBLANK(_varTicket),
-			        IF(_varTicket < 0, _neg, _pos) & FORMAT(_varTicket, _fmtVar) & "</span> vs. mesmo período (R$ " & FORMAT(_ticketAA, "#,##0") & ")",
+			        IF(_varTicket < 0, _neg, _pos) & FORMAT(_varTicket, _fmtVar) & "</span> vs. mesmo período (" & _sim & FORMAT(_ticketAA, "#,##0") & ")",
 			        "Sem base no ano anterior")
 			VAR _periodo = "Período com vendas: " & FORMAT(_ini, "dd/mm/yyyy") & " a " & FORMAT(_fim, "dd/mm/yyyy")
 			RETURN
@@ -251,7 +264,7 @@ table Medidas
 			        "<div style='" & _card & "'><p style='" & _lbl & "'>Receita</p><p style='" & _val & "'>" & _receitaTxt & "</p><p style='" & _cmp & "'>" & _receitaCmp & "</p></div>" &
 			        "<div style='" & _card & "'><p style='" & _lbl & "'>Atingimento da meta</p><p style='" & IF(NOT ISBLANK(_ating) && _ating < 1, _valNeg, _val) & "'>" & _atingTxt & "</p><p style='" & _cmp & "'>" & _atingCmp & "</p></div>" &
 			        "<div style='" & _card & "'><p style='" & _lbl & "'>Pedidos faturados</p><p style='" & _val & "'>" & FORMAT(_pedidos, "#,##0") & "</p><p style='" & _cmp & "'>" & _pedidosCmp & "</p></div>" &
-			        "<div style='" & _card & "'><p style='" & _lbl & "'>Ticket médio</p><p style='" & _val & "'>R$ " & FORMAT(_ticket, "#,##0") & "</p><p style='" & _cmp & "'>" & _ticketCmp & "</p></div>" &
+			        "<div style='" & _card & "'><p style='" & _lbl & "'>Ticket médio</p><p style='" & _val & "'>" & _sim & FORMAT(_ticket, "#,##0") & "</p><p style='" & _cmp & "'>" & _ticketCmp & "</p></div>" &
 			    "</div>" &
 			    "<p style='font-size:8pt;color:" & _cSec & ";margin:6px 0 0 0;'>" & _periodo & "</p>" &
 			    "</div>"
@@ -270,17 +283,18 @@ table Medidas
 			VAR _gap = _receita - _meta
 			VAR _ini = CALCULATE(MIN(fato_vendas[Data]), fato_vendas[Status] = "Faturado")
 			VAR _fim = CALCULATE(MAX(fato_vendas[Data]), fato_vendas[Status] = "Faturado")
+			VAR _sim = IF([Moeda Selecionada] = "U$", "US$ ", "R$ ")
 			VAR _fmtMi = "#,##0.00"
 			VAR _pct = "0.0%"
 			VAR _neg = "<span style='color:#A4262C;'>"
 			VAR _pos = "<span style='font-weight:700;'>"
 			VAR _insight =
-			    "Receita de " & _pos & "R$ " & FORMAT(_receita / 1000000, _fmtMi) & " mi</span>" &
+			    "Receita de " & _pos & _sim & FORMAT(_receita / 1000000, _fmtMi) & " mi</span>" &
 			    IF(NOT ISBLANK(_var),
 			        ", " & IF(_var >= 0, _pos & FORMAT(_var, _pct) & " acima", _neg & FORMAT(ABS(_var), _pct) & " abaixo") & "</span> do mesmo período do ano anterior", "") &
 			    IF(NOT ISBLANK(_ating),
 			        ", com " & IF(_ating >= 1, _pos, _neg) & FORMAT(_ating, _pct) & " da meta</span> (" &
-			        IF(_gap >= 0, _pos & "folga de R$ " & FORMAT(_gap / 1000000, _fmtMi) & " mi</span>", _neg & "faltam R$ " & FORMAT(ABS(_gap) / 1000000, _fmtMi) & " mi</span>") & ")", "") & "."
+			        IF(_gap >= 0, _pos & "folga de " & _sim & FORMAT(_gap / 1000000, _fmtMi) & " mi</span>", _neg & "faltam " & _sim & FORMAT(ABS(_gap) / 1000000, _fmtMi) & " mi</span>") & ")", "") & "."
 			
 			// estilos (DESING.md)
 			VAR _cTit = "#0B4F35"
@@ -303,9 +317,10 @@ table Medidas
 			        || ISFILTERED(fato_vendas[Canal]) || ISFILTERED(fato_vendas[Status])
 			RETURN
 			    IF(_recorteSemMeta, BLANK(), CALCULATE([Meta], KEEPFILTERS(dim_calendario[Data] <= _ultima)))
-		formatString: "R$" #,##0.00
 		displayFolder: 2. Meta
 		lineageTag: 93d9a2c3-5a75-452d-94fe-b440dd8e78be
+
+		formatStringDefinition = IF([Moeda Selecionada] = "U$", """US$"" #,##0.00", """R$"" #,##0.00")
 
 	/// HTML com 4 cards KPI (Margem bruta %, Desconto %, Taxa de cancelamento %, Clientes ativos) em uma linha, para o visual HTML Content da página Desempenho Comercial. Tokens do DESING.md. Comparação vs. mesmo período do ano anterior recortado até a última data com venda; taxas comparadas em pontos percentuais. Piora em vermelho #A4262C com sinal (margem e clientes caindo; desconto e cancelamento subindo); melhora em negrito. Comparações somem sem base.
 	measure 'HTML KPIs Desempenho Comercial' =
@@ -410,13 +425,116 @@ table Medidas
 			VAR _cSec = "#475D52"
 			RETURN
 			IF(ISBLANK([Receita]),
-			    "<div style='font-family:Segoe UI,Arial,sans-serif;font-size:12pt;color:" & _cSec & ";background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:16px;'>Sem dados para os filtros atuais</div>",
-			    "<div style='font-family:Segoe UI,Arial,sans-serif;box-sizing:border-box;background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:16px;'>" &
-			    "<p style='font-size:14pt;font-weight:400;color:" & _cTit & ";margin:0;line-height:1.3;'>" & _insight & "</p>" &
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;font-size:10pt;color:" & _cSec & ";background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:14px;'>Sem dados para os filtros atuais</div>",
+			    "<div style='font-family:Segoe UI,Arial,sans-serif;box-sizing:border-box;background:#FFFFFF;border:1px solid #D3E5D5;border-radius:4px;padding:14px;'>" &
+			    "<p style='font-size:12pt;font-weight:400;color:" & _cTit & ";margin:0;line-height:1.3;'>" & _insight & "</p>" &
 			    "</div>"
 			)
 		displayFolder: 4. HTML
 		lineageTag: 726c49be-9f9f-46e3-a7e9-e3d28bdbac2a
+
+	/// Moeda escolhida no parâmetro Moeda; R$ quando nada ou as duas estão selecionadas.
+	measure 'Moeda Selecionada' = SELECTEDVALUE(Moeda[Moeda], "R$")
+		displayFolder: 5. Câmbio
+		lineageTag: d7273b79-659e-413e-8800-47acd370a0fb
+
+	/// Cotação do dólar (R$ por US$ 1) vigente na última data do contexto: última cotação válida até essa data, cobrindo fins de semana e feriados. Antes da primeira cotação usa a primeira disponível.
+	measure 'Cotação Dólar' =
+			VAR _d = MAX(dim_calendario[Data])
+			VAR _ultima =
+			    CALCULATE(MAX(fato_cotacao_moeda[data_cotacao]), REMOVEFILTERS(dim_calendario), fato_cotacao_moeda[data_cotacao] <= _d)
+			VAR _data =
+			    IF(ISBLANK(_ultima), CALCULATE(MIN(fato_cotacao_moeda[data_cotacao]), REMOVEFILTERS(dim_calendario)), _ultima)
+			RETURN
+			    CALCULATE(MAX(fato_cotacao_moeda[valor_cotacao]), REMOVEFILTERS(dim_calendario), fato_cotacao_moeda[data_cotacao] = _data)
+		formatString: "R$" #,##0.0000
+		displayFolder: 5. Câmbio
+		lineageTag: 83754db4-6468-40aa-90f4-f1a7e3295d4c
+
+	/// Média das cotações do dólar publicadas no período (dias úteis).
+	measure 'Cotação Média' = AVERAGE(fato_cotacao_moeda[valor_cotacao])
+		formatString: "R$" #,##0.0000
+		displayFolder: 5. Câmbio
+		lineageTag: 4a0b3641-2ad1-4f52-8e8f-725847c407d3
+
+	/// Receita líquida faturada sempre em reais; base de [Receita].
+	measure 'Receita R$' =
+			CALCULATE(
+			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[PrecoUnitario] * (1 - fato_vendas[DescontoPct])),
+			    fato_vendas[Status] = "Faturado"
+			)
+		formatString: "R$" #,##0.00
+		isHidden
+		displayFolder: 5. Câmbio
+		lineageTag: 443dcd5c-6659-4964-9476-61978e5656c3
+
+	/// Receita bruta faturada sempre em reais; base de [Receita Bruta].
+	measure 'Receita Bruta R$' =
+			CALCULATE(
+			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[PrecoUnitario]),
+			    fato_vendas[Status] = "Faturado"
+			)
+		formatString: "R$" #,##0.00
+		isHidden
+		displayFolder: 5. Câmbio
+		lineageTag: 72673db6-2290-45a5-a4cd-a369072b513d
+
+	/// Custo faturado sempre em reais; base de [Custo].
+	measure 'Custo R$' =
+			CALCULATE(
+			    SUMX(fato_vendas, fato_vendas[Quantidade] * fato_vendas[CustoUnitario]),
+			    fato_vendas[Status] = "Faturado"
+			)
+		formatString: "R$" #,##0.00
+		isHidden
+		displayFolder: 5. Câmbio
+		lineageTag: fc7032f2-bf96-452e-9be0-45db7d4ab75d
+
+	/// Meta sempre em reais; base de [Meta].
+	measure 'Meta R$' = SUM(metas_mensais[MetaValor])
+		formatString: "R$" #,##0.00
+		isHidden
+		displayFolder: 5. Câmbio
+		lineageTag: 7dd4b9b4-823b-4229-9027-e92139015628
+
+	measure 'Meta Max' = 1
+		formatString: 0%;-0%;0%
+		displayFolder: 2. Meta
+		lineageTag: 3405e0ba-a707-4afa-8430-d7074fea80df
+
+	/// Cor para formatação condicional (valor do campo) do Atingimento %: abaixo de 100% vermelho crítico #A4262C; 100% ou mais verde primário #176B3A. Vazio sem atingimento.
+	measure 'Cor Atingimento' =
+			VAR _a = [Atingimento %]
+			RETURN
+			    SWITCH(TRUE(),
+			        ISBLANK(_a), BLANK(),
+			        _a < 1, "#A4262C",
+			        "#176B3A")
+		displayFolder: 0. Aux
+		lineageTag: b0e1a1f8-c9bd-4ef1-b97e-2bc78e7a13f1
+
+	/// Cor em degradê para formatação condicional do Atingimento %: vermelho #A4262C em 50% ou menos, âmbar #9C6500 em 100% e verde escuro #0B4F35 em 150% ou mais, interpolando em RGB entre os pontos. Faixa 50%–150% escolhida pelo usuário para demonstração.
+	measure 'Cor Atingimento Degradê' =
+			VAR _a = [Atingimento %]
+			VAR _min = 0.5
+			VAR _meio = 1
+			VAR _max = 1.5
+			VAR _p = MIN(MAX(_a, _min), _max)
+			VAR _seg1 = _p <= _meio
+			VAR _t = IF(_seg1, DIVIDE(_p - _min, _meio - _min), DIVIDE(_p - _meio, _max - _meio))
+			// vermelho #A4262C -> âmbar #9C6500 -> verde escuro #0B4F35
+			VAR _r = ROUND(IF(_seg1, 164 + (156 - 164) * _t, 156 + (11 - 156) * _t), 0)
+			VAR _g = ROUND(IF(_seg1, 38 + (101 - 38) * _t, 101 + (79 - 101) * _t), 0)
+			VAR _b = ROUND(IF(_seg1, 44 + (0 - 44) * _t, 0 + (53 - 0) * _t), 0)
+			VAR _hex = "0123456789ABCDEF"
+			RETURN
+			    IF(ISBLANK(_a), BLANK(),
+			        "#"
+			            & MID(_hex, QUOTIENT(_r, 16) + 1, 1) & MID(_hex, MOD(_r, 16) + 1, 1)
+			            & MID(_hex, QUOTIENT(_g, 16) + 1, 1) & MID(_hex, MOD(_g, 16) + 1, 1)
+			            & MID(_hex, QUOTIENT(_b, 16) + 1, 1) & MID(_hex, MOD(_b, 16) + 1, 1))
+		displayFolder: 0. Aux
+		lineageTag: 504f401e-ec23-457d-8298-838e11942cf5
 
 	column 'Coluna 1'
 		dataType: string

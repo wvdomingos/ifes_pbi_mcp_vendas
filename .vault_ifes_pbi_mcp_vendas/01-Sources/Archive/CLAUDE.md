@@ -28,8 +28,8 @@ Medidas, páginas e regras daquele projeto **não existem aqui** — não assuma
 
 ## Estado atual
 
-Star schema montado: 5 abas do Excel viram tabelas via Power Query, mais `dim_calendario` gerada em M.
-6 relacionamentos em `relationships.tmdl`, `*:1`, `OneDirection`:
+Star schema montado: 6 abas do Excel viram tabelas via Power Query, mais `dim_calendario` gerada em M.
+7 relacionamentos em `relationships.tmdl`, `*:1`, `OneDirection`:
 
 ```
 fato_vendas[Data]          → dim_calendario[Data]
@@ -38,22 +38,26 @@ fato_vendas[ProdutoID]     → dim_produtos[ProdutoID]
 fato_vendas[VendedorID]    → dim_vendedores[VendedorID]
 metas_mensais[DataMes]     → dim_calendario[Data]
 metas_mensais[VendedorID]  → dim_vendedores[VendedorID]
+fato_cotacao_moeda[data_cotacao] → dim_calendario[Data]
 ```
 
 **Dados (Excel, sintéticos):** `fato_vendas` 4189 linhas, 2025-01-01 → 2026-09-17; `dim_clientes`
 150 (Sudeste 96, Nordeste 24, Sul 12, Centro-Oeste 10, Norte 8 — C121…C150 adicionados em 2026-10-19
 com vendas em todo o período); `dim_produtos` 36; `dim_vendedores` 12; `metas_mensais` 288
-(2025-01 → 2026-12); `dim_calendario` 1095. Sem órfãs (validado no modelo vivo).
+(2025-01 → 2026-12); `dim_calendario` 1095; `fato_cotacao_moeda` 451 no modelo (cotação diária do dólar, dias úteis,
+2025-01-02 → 2026-10-07; a aba guarda desde 2013 e o Power Query corta em 2025 — em 2026-10-22 foram
+removidos da aba 4 valores zero e 2 datas duplicadas). Sem órfãs (validado no modelo vivo).
 
-**Medidas:** 28 em `Medidas`, todas de negócio com `description`:
+**Medidas:** 40 em `Medidas`, todas de negócio com `description`:
 
 | Pasta | Medidas |
 |---|---|
-| `0. Aux` | `txtAtualizacao`, `Dummy` (sem `description`) |
+| `0. Aux` | `txtAtualizacao`, `Dummy` (sem `description`), `Cor Atingimento`, `Cor Atingimento Degradê` |
 | `1. Vendas` | Receita, Receita Bruta, Desconto, Desconto %, Custo, Margem Bruta, Margem Bruta %, Quantidade Vendida, Pedidos, Pedidos Cancelados, Taxa de Cancelamento %, Ticket Médio, Clientes Ativos |
-| `2. Meta` | Meta, Meta Comparável, Atingimento %, Gap Meta |
+| `2. Meta` | Meta, Meta Comparável, Atingimento %, Gap Meta, Meta Max (`= 1`, criada pelo usuário) |
 | `3. Tempo` | Receita Ano Anterior, Receita Var. Anual %, Receita Mês Anterior, Receita Var. Mensal %, Receita Acumulada Ano, Meta Acumulada Ano, Atingimento Acumulado Ano % |
-| `4. HTML` | HTML KPIs Visão Executiva, HTML Narrativa Visão Executiva |
+| `4. HTML` | HTML KPIs / Narrativa Visão Executiva, HTML KPIs / Narrativa Desempenho Comercial |
+| `5. Câmbio` | Moeda Selecionada, Cotação Dólar, Cotação Média; ocultas: Receita R$, Receita Bruta R$, Custo R$, Meta R$ |
 
 Regras:
 
@@ -72,6 +76,17 @@ Regras:
   Contexto/Pontos de atenção/Para explorar foram removidas por decisão do usuário. Por decisão do
   usuário, negativos (variação, gap, atingimento < 100%) em vermelho `#A4262C` com sinal/palavra,
   positivos em negrito. Trechos somem quando falta base.
+- **Câmbio R$ / U$:** tabela calculada desconectada `Moeda` (`R$`, `U$`; segmentador em
+  `Moeda[Descricao]`; sem seleção = R$). Só `Receita`, `Receita Bruta`, `Custo` e `Meta` convertem —
+  `SUMX(VALUES(dim_calendario[Data]), DIVIDE([<base> R$], [Cotação Dólar]))`; o resto herda. `Cotação
+  Dólar` = última cotação válida até a data (cobre fim de semana/feriado; antes da primeira, usa a
+  primeira). Meta converte pela cotação do dia 1 do mês. As 13 medidas monetárias usam format string
+  dinâmica (`"R$"`/`"US$"`) — o `formatString` estático tem de ficar vazio (TOM rejeita os dois). Os
+  HTML da Visão Executiva trocam o símbolo via `VAR _sim`. Variação anual muda de sinal entre moedas
+  (2026: −5,0% em R$, +4,4% em U$): é câmbio, não bug.
+- **Cores condicionais** (formatação por valor do campo): `Cor Atingimento` = `#A4262C` < 100%,
+  `#176B3A` ≥ 100%; `Cor Atingimento Degradê` interpola RGB `#A4262C` (≤ 50%) → `#9C6500` (100%) →
+  `#0B4F35` (≥ 150%). Pontos 50/100/150 são escolha de demonstração, não limiar de negócio.
 - Base sintética tem receita bem acima da meta (≈190% em 2025, ≈165% em 2026 até 17/09): atingimento
   alto é dado, não bug. Setembro/2026 é mês parcial, então suas variações mensais saem negativas.
 
@@ -102,7 +117,8 @@ Tabelas em `dashboards/ifes-pbi-mcp-vendas.SemanticModel/definition/tables/`, to
 em quatro categorias:
 
 **1. Tabelas do Excel (grupos `Fato` e `Dimensão`)** — `fato_vendas`, `metas_mensais`,
-`dim_clientes`, `dim_produtos`, `dim_vendedores`. Mesmo M, mudando só o `Item=`:
+`fato_cotacao_moeda`, `dim_clientes`, `dim_produtos`, `dim_vendedores`. Mesmo M, mudando só o `Item=`
+(`fato_cotacao_moeda` acrescenta `CotacaoValida` > 0, `APartirDe2025` e `SemDuplicatas`):
 
 ```m
 let
@@ -123,7 +139,7 @@ o parâmetro**.
 `closingMonthStartDay`, `language = "pt-BR"`). Feriados brasileiros, dias úteis, estações, ano fiscal.
 **Ajustar o calendário = mexer nesses parâmetros**, não nas ~1160 linhas de coluna acima.
 
-**3. Auxiliares (grupo `Aux`)** — `Atualizacao` (oculta; `DateTime.LocalNow()` em horário de
+**3. Auxiliares (grupo `Aux`)** — `Moeda` (calculada DAX, parâmetro R$/U$, sem relacionamento); `Atualizacao` (oculta; `DateTime.LocalNow()` em horário de
 Brasília via `DateTimeZone.SwitchZone(...,-3)`) e `Medidas` (tabela vazia, **container de toda
 medida nova**).
 

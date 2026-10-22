@@ -44,6 +44,8 @@ Hub de navegação do conhecimento do projeto **ifes-pbi-mcp-vendas** (evento IF
 - [[fato_vendas (Entidade)]]
 - [[metas_mensais (Entidade)]]
 - [[dim_calendario (Entidade)]]
+- [[fato_cotacao_moeda (Entidade)]]
+- [[Moeda (Entidade)]]
 - [[Medidas (Entidade)]]
 - [[documentacao (Entidade)]]
 - [[Power BI (Entidade)]]
@@ -68,7 +70,7 @@ Hub de navegação do conhecimento do projeto **ifes-pbi-mcp-vendas** (evento IF
 | Métrica | Valor |
 |---|---|
 | Total de Sínteses | 6 |
-| Total de Entidades | 7 |
+| Total de Entidades | 9 |
 | Total de Conceitos | 5 |
 | Fontes processadas | 3 |
-| Último ingest | 2026-10-19 |
+| Último ingest | 2026-10-22 |

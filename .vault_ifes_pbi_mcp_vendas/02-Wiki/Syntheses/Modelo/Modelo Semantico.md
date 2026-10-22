@@ -5,7 +5,7 @@ tags:
   - modelo
   - tmdl
   - dax
-date: 2026-10-19
+date: 2026-10-22
 status: active
 fontes:
   - "[[CLAUDE]]"
@@ -17,12 +17,14 @@ Síntese de `CLAUDE.md`, seções "Estado atual", "Arquitetura do modelo semânt
 
 ## Estado
 
-[[Star Schema (Conceito)|Star schema]] montado. 6 relacionamentos `*:1`, `OneDirection`, sem órfãs (validado no modelo vivo via MCP em 2026-10-19). `compatibilityLevel: 1606`, cultura `pt-BR`, `__PBI_TimeIntelligenceEnabled = 0`.
+[[Star Schema (Conceito)|Star schema]] montado. 7 relacionamentos `*:1`, `OneDirection`, sem órfãs (validado no modelo vivo via MCP em 2026-10-22). `compatibilityLevel: 1606`, cultura `pt-BR`, `__PBI_TimeIntelligenceEnabled = 0`.
 
 | Tabela | Grupo | Linhas | Período |
 |---|---|---|---|
 | [[fato_vendas (Entidade)\|fato_vendas]] | Fato | 4189 | 2025-01-01 → 2026-09-17 |
 | [[metas_mensais (Entidade)\|metas_mensais]] | Fato | 288 | 2025-01-01 → 2026-12-01 |
+| [[fato_cotacao_moeda (Entidade)\|fato_cotacao_moeda]] | Fato | 451 | 2025-01-02 → 2026-10-07 (dias úteis) |
+| [[Moeda (Entidade)\|Moeda]] | calculada, desconectada | 2 | parâmetro R$ / U$ |
 | dim_clientes | Dimensão | 150 | — |
 | dim_produtos | Dimensão | 36 | — |
 | dim_vendedores | Dimensão | 12 | — |
@@ -35,13 +37,14 @@ fato_vendas[ProdutoID]     → dim_produtos[ProdutoID]
 fato_vendas[VendedorID]    → dim_vendedores[VendedorID]
 metas_mensais[DataMes]     → dim_calendario[Data]
 metas_mensais[VendedorID]  → dim_vendedores[VendedorID]
+fato_cotacao_moeda[data_cotacao] → dim_calendario[Data]
 ```
 
-**Medidas:** 28 em [[Medidas (Entidade)|Medidas]], pastas `0. Aux` a `4. HTML`, todas de negócio com `description`. Meta tem grão vendedor × mês e não se divide por cliente/produto/canal/status — ver a entidade.
+**Medidas:** 40 em [[Medidas (Entidade)|Medidas]], pastas `0. Aux` a `5. Câmbio`; valores monetários convertem para U$ pelo parâmetro [[Moeda (Entidade)|Moeda]], todas de negócio com `description`. Meta tem grão vendedor × mês e não se divide por cliente/produto/canal/status — ver a entidade.
 
 ## Quatro categorias de tabela
 
-1. **Excel** (`Fato`, `Dimensão`) — 5 tabelas, mesmo M, só muda `Item=`. Caminho vem do parâmetro `pCaminhoExcel` em `expressions.tmdl`. Ver [[Fonte de Dados]].
+1. **Excel** (`Fato`, `Dimensão`) — 6 tabelas (inclui `fato_cotacao_moeda`, com filtros extras de validade, ≥ 2025 e sem duplicatas), mesmo M, só muda `Item=`. Caminho vem do parâmetro `pCaminhoExcel` em `expressions.tmdl`. Ver [[Fonte de Dados]].
 2. **Gerada em M** — [[dim_calendario (Entidade)|dim_calendario]], parâmetros no topo do Power Query.
 3. **Auxiliares** (`Aux`) — `Atualizacao` (`isHidden`, timestamp Brasília) e [[Medidas (Entidade)|Medidas]] (visível, container de medidas).
 4. **Auto-documentação** — `Meta_Tables/Columns/Measures/Relationships` via `INFO.VIEW.*()` e [[documentacao (Entidade)|documentacao]] (UNION medidas + colunas visíveis).

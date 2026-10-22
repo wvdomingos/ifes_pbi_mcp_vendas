@@ -22,3 +22,7 @@ relationship 6ce0b27f-4a16-2c75-4d5c-8ff3154db51f
 	fromColumn: metas_mensais.VendedorID
 	toColumn: dim_vendedores.VendedorID
 
+relationship 46ba6d04-5309-70fe-a408-5acb41298662
+	fromColumn: fato_cotacao_moeda.data_cotacao
+	toColumn: dim_calendario.Data
+

@@ -122,6 +122,20 @@
               }
             }
           }
+        },
+        {
+          "properties": {
+            "showSeries": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Medidas.Meta"
+          }
         }
       ],
       "categoryAxis": [
